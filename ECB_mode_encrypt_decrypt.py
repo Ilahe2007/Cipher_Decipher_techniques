@@ -1,72 +1,77 @@
 BlockSize = 4
-#this function ciphers the text without ecb
-def Ceasar_cipher(txt, key):
+alphabet = "abcdefghijklmnopqrstuvwxyz"
+key_alphabet = "qwertyuiopasdfghjklzxcvbnm"
+#this function ciphers the text without ecb using monolit encription
+def cipher(txt):
     cipher_txt = ""
-
     for i in txt:
         if(i.isalpha() == True):
-            if(i.upper() == i):                               
-                pos = (ord(i) - 65 + key) % 26 + 65           #65 is A 
+            if(i.upper() == i):                
+                i = (key_alphabet[alphabet.find(i.lower())]).upper()
             else:
-                pos = (ord(i) - 97 + key) % 26 + 97           #97 is a
-            i = chr(pos)                                      
+                i = (key_alphabet[alphabet.find(i)]) 
+        elif(i == '\n'):
+            i = ' '
         cipher_txt += i                                          
     return cipher_txt                                         
                                                               
 #this function deciphers the text without ecb                       
-def Ceasar_decipher(txt, key):                                
+def decipher(txt):                                
     decipher_txt = ""                                         
                                                                                                                       
     for i in txt:                                             
         if(i.isalpha() == True):                           
-            if(i.upper() == i):                             
-                pos = (ord(i) - 65 - key) % 26 + 65
+            if(i.upper() == i):                      
+                i = (alphabet[key_alphabet.find(i.lower())]).upper() 
             else:
-                pos = (ord(i) - 97 - key) % 26 + 97
-            i = chr(pos)
+                i = (alphabet[key_alphabet.find(i)])
+        elif(i == '\n'):
+            i = ' '
         decipher_txt += i
     return decipher_txt
 
 def add_padding(txt):
     remainder = len(txt) % BlockSize
     #i wrote this, so if the block isn't enough to be equal to other block sizes then we add # as padding so we have same blocksize, but if it is equal to like perfectly needed size then size - size = 0 so there will be no additional padding needed
-    padding_size = BlockSize - remainder    
+    if(remainder != 0):
+        padding_size = BlockSize - remainder    
+    else:
+        padding_size = 0
     return txt + ('#' * padding_size)
 
 
-def ECB_cipher(txt, key):
+def ECB_cipher(txt):
     padded = add_padding(txt)
     result = ""
     #each block gets ciphered and added to result
     for i in range(0, len(padded), BlockSize):
         block = padded[i: (i + BlockSize)] #from i to i + BlockSize
-        result += Ceasar_cipher(block, key)
+        result += cipher(block)
     return result
 
 #for after the decipher I won't need the padding
 def strip_padding(txt):
     return txt.rstrip('#')
 
-def ECB_decipher(txt, key):
+def ECB_decipher(txt):
     result = ""
     #for each block I discipher and collect into result
     for i in range(0, len(txt), BlockSize):
         block = txt[i: (i + BlockSize)]   #from i to i + BlockSize
-        result += Ceasar_decipher(block, key)
+        result += decipher(block)
     return strip_padding(result)
 
 
-txt = input("Enter the text: ")
-key = int(input("Enter the key: "))
-
 operation = 0
-while(operation != 1 and operation != 2):
-    operation = int(input("Enter 1 for cipher, 2 for decipher: "))
-    if operation == 1:
-        #padding will be printed here because I want to let user know where the text ends
-        print(ECB_cipher(txt, key))
-    elif operation == 2:
-        #this shows original text after decipher so no need for padding to printed
-        print(ECB_decipher(txt, key))
-    else:
-        print("This isn't a valid input")
+operation = int(input("Enter 1 for cipher, 2 for decipher: "))
+    
+converted_file = open("converted_file.txt","w")
+txt = "new"
+with open("test.txt", "r", encoding="utf-8-sig") as test_file:
+    while txt:
+        txt = test_file.read(BlockSize)
+        if operation == 1:
+            converted_file.write(ECB_cipher(txt))
+        elif operation == 2:
+            converted_file.write(ECB_decipher(txt))
+converted_file.close()
